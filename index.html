@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>كوكب العلوم | العظام والعضلات</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+  <style>
+    body{font-family:'Tajawal',sans-serif;background:radial-gradient(circle at 20% 15%,#4338ca 0%,#1e1b4b 50%,#0f172a 100%);min-height:100vh}
+    .card{border:3px solid #1e293b;box-shadow:0 8px 0 #0f172a,0 14px 25px rgba(0,0,0,.3)}
+    .btn{border:3px solid #0f172a;box-shadow:0 5px 0 #0f172a;transition:.12s}
+    .btn:hover{transform:translateY(-2px);box-shadow:0 7px 0 #0f172a}.btn:active{transform:translateY(3px);box-shadow:0 2px 0 #0f172a}
+    .float{animation:float 3s ease-in-out infinite}@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+    .pulse{animation:pulse 2s infinite}@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+    .option.correct{background:#059669!important;border-color:#34d399!important}.option.wrong{background:#e11d48!important;border-color:#fb7185!important}
+    .mini3d{height:230px;background:radial-gradient(circle at 50% 35%,#172554,#020617);position:relative;overflow:hidden}
+    .joint{width:44px;height:44px;border-radius:50%;background:#60a5fa;box-shadow:0 0 20px rgba(96,165,250,.55)}
+    .bone{background:linear-gradient(90deg,#fef3c7,#fde68a,#fef3c7);border:2px solid #a16207;border-radius:24px;box-shadow:inset 0 0 8px rgba(0,0,0,.18)}
+    .muscle{background:linear-gradient(90deg,#ef4444,#fca5a5,#ef4444);border:2px solid #991b1b;border-radius:50%;box-shadow:0 0 12px rgba(239,68,68,.35)}
+    .part{cursor:pointer;border:2px dashed #64748b;border-radius:14px;padding:9px;background:#0f172a;color:#e2e8f0}.part:hover{border-color:#fbbf24}
+    .answerbox{min-height:72px;border:3px dashed #475569;border-radius:18px;padding:12px;background:rgba(2,6,23,.55)}
+  </style>
+</head>
+<body class="text-slate-100 p-3 sm:p-5">
+  <header class="max-w-5xl mx-auto card bg-white/10 backdrop-blur-md rounded-3xl p-3 sm:p-4 mb-4 flex items-center justify-between gap-3">
+    <div class="flex items-center gap-3">
+      <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center text-3xl border-2 border-amber-200">🌍</div>
+      <div><h1 class="text-xl sm:text-2xl font-black text-amber-300">كوكب العلوم</h1><p class="text-xs sm:text-sm text-slate-300 font-bold">الصف الخامس الابتدائي • العظام والعضلات</p></div>
+    </div>
+    <div id="stats" class="hidden text-center bg-slate-950/70 rounded-2xl px-3 py-2 border border-white/10">
+      <div class="text-amber-300 font-black">⭐ <span id="score">0</span> / 15</div>
+      <div class="text-cyan-300 text-xs font-bold">المرحلة <span id="stageNum">1</span> من 3</div>
+    </div>
+  </header>
+
+  <main class="max-w-5xl mx-auto">
+    <section id="welcome" class="card bg-slate-900/90 rounded-3xl p-5 sm:p-8 max-w-2xl mx-auto text-center">
+      <div class="text-7xl float mb-4">👩‍🏫</div>
+      <div class="inline-block bg-emerald-500 text-slate-950 font-black px-3 py-1 rounded-full mb-4">المعلمة ريم رضا</div>
+      <h2 class="text-3xl sm:text-4xl font-black text-amber-300 mb-3">مرحبًا يا بطل! 🌟</h2>
+      <p class="text-lg font-bold text-slate-200 mb-6">اكتب اسمك وابدأ مغامرة علمية من 3 مراحل في عالم العظام والعضلات.</p>
+      <input id="nameInput" maxlength="25" class="w-full text-center text-xl font-black p-4 rounded-2xl text-slate-900 border-4 border-amber-400 focus:outline-none" placeholder="اكتب اسمك هنا..." />
+      <p id="nameError" class="hidden text-rose-300 font-bold text-sm mt-2">من فضلك اكتب اسمك أولًا.</p>
+      <button class="btn w-full mt-4 bg-amber-400 text-slate-950 font-black text-xl py-4 rounded-2xl" onclick="startGame()">ابدأ المغامرة 🚀</button>
+      <div class="grid grid-cols-3 gap-2 mt-6 text-xs font-black">
+        <div class="bg-indigo-950/80 rounded-xl p-2">🦴 3 مراحل</div><div class="bg-indigo-950/80 rounded-xl p-2">💪 15 سؤالًا</div><div class="bg-indigo-950/80 rounded-xl p-2">🏆 نتيجة نهائية</div>
+      </div>
+    </section>
+
+    <section id="game" class="hidden space-y-4">
+      <div class="card bg-white/10 rounded-2xl p-3">
+        <div class="flex items-center justify-between gap-3 mb-2"><div><span id="stageBadge" class="bg-amber-400 text-slate-950 font-black px-3 py-1 rounded-lg text-xs">المرحلة الأولى</span><span id="stageTitle" class="mr-2 font-black">أبطال العظام والعضلات</span></div><div id="qCount" class="text-cyan-300 font-black text-sm">السؤال 1 من 5</div></div>
+        <div class="w-full h-3 bg-slate-950/70 rounded-full p-0.5"><div id="progress" class="h-full w-0 bg-gradient-to-r from-amber-400 to-orange-500 rounded-full transition-all"></div></div>
+      </div>
+
+      <div class="grid lg:grid-cols-5 gap-4">
+        <aside class="lg:col-span-2 card bg-slate-900/90 rounded-3xl p-4">
+          <div class="flex items-center justify-between mb-2"><span class="font-black text-amber-300">مختبر تفاعلي 🔬</span><span class="text-xs bg-slate-800 px-2 py-1 rounded">3D</span></div>
+          <div id="visual" class="mini3d rounded-2xl border-2 border-slate-700"></div>
+          <div id="visualInfo" class="mt-3 text-sm font-bold text-cyan-100 bg-slate-950/70 p-3 rounded-xl border border-slate-700"></div>
+        </aside>
+
+        <section class="lg:col-span-3 card bg-slate-900/90 rounded-3xl p-4 sm:p-6">
+          <div class="bg-slate-950/80 rounded-2xl p-3 border border-indigo-500/40 mb-4"><div class="text-amber-300 text-xs font-black mb-1">المعلمة ريم رضا تسألك:</div><div id="question" class="font-black text-lg sm:text-xl leading-relaxed">جارٍ تحميل السؤال...</div></div>
+          <div id="questionArea" class="min-h-[220px] flex flex-col justify-center"></div>
+          <div id="feedback" class="hidden mt-4 rounded-2xl p-3 border-2"></div>
+        </section>
+      </div>
+    </section>
+
+    <section id="final" class="hidden card bg-slate-900/95 rounded-3xl p-6 sm:p-8 max-w-2xl mx-auto text-center">
+      <div class="text-7xl float">🎓</div>
+      <h2 id="finalTitle" class="text-3xl font-black text-amber-300 mt-3">أحسنت!</h2>
+      <p class="text-lg font-bold text-slate-200 mt-2">لقد أكملت تحدي كوكب العلوم.</p>
+      <div class="mt-5 bg-indigo-950 rounded-2xl p-5 border-2 border-amber-400/50"><div class="text-sm text-slate-300 font-bold">درجتك النهائية</div><div class="text-5xl font-black text-amber-400"><span id="finalScore">0</span><span class="text-2xl text-slate-400"> / 15</span></div><div id="badge" class="inline-block mt-3 px-4 py-2 rounded-full bg-amber-400 text-slate-950 font-black"></div></div>
+      <button class="btn bg-emerald-500 text-slate-950 font-black text-lg py-3 px-7 rounded-2xl mt-5" onclick="restartGame()">إعادة اللعب 🔄</button>
+      <div class="border-t border-slate-700 mt-6 pt-5 space-y-2"><div id="thanks" class="font-black text-cyan-300"></div><div class="text-slate-300">مع تحياتي وتمنياتي لك بالتوفيق دائمًا ❤️</div><div class="text-lg font-black text-amber-300">إعداد المعلمة: ريم رضا 👩‍🏫</div><div class="font-black">🌍 كوكب العلوم</div></div>
+    </section>
+  </main>
+
+<script>
+const stages=[
+ {title:'أبطال العظام والعضلات 🦴💪',visual:'arm',qs:[
+  {type:'mcq',q:'أي جزء يساعد الجسم على إحداث الحركة بشكل رئيسي؟',opts:['العظام','العضلات','الجلد'],a:1,e:'العضلات تنقبض وتنبسط فتساعد على تحريك العظام.'},
+  {type:'tf',q:'المفاصل هي أماكن اتصال العظام وتسمح بحركتها.',opts:['صح','خطأ'],a:0,e:'صحيح؛ المفصل يسمح للعظام بالحركة عند اتصالها.'},
+  {type:'match',q:'صل كل جزء بوظيفته الصحيحة:',pairs:[['العظام','تعطي الجسم شكله وتدعمه'],['العضلات','تنقبض وتنبسط للمساعدة على الحركة'],['المفاصل','تساعد العظام على الحركة عند اتصالها']],e:'العظام والعضلات والمفاصل تعمل معًا للحركة.'},
+  {type:'pic',q:'عند ثني الذراع للأعلى، ماذا يحدث للعضلة الأمامية؟',opts:['تنقبض وتقصر','تسترخي وتطول'],a:0,e:'عند ثني الذراع تنقبض العضلة الأمامية.'},
+  {type:'mcq',q:'عند بسط الذراع لأسفل، ماذا يحدث للعضلة الخلفية؟',opts:['تنقبض','تختفي','تتكسر'],a:0,e:'العضلات تعمل في أزواج متعاكسة أثناء الحركة.'}
+ ]},
+ {title:'اكتشف ما بداخل العظمة 🔍🦴',visual:'bone',qs:[
+  {type:'mcq',q:'أي جزء من العظمة يحتوي على فراغات دقيقة ويكون أخف؟',opts:['العظم الإسفنجي','العظم الكثيف','الجلد'],a:0,e:'العظم الإسفنجي يحتوي على فراغات تجعله خفيفًا مع الحفاظ على القوة.'},
+  {type:'parts',q:'اضغط على الجزء الذي يمثل العظم الكثيف:',parts:[['compact','العظم الكثيف (الطبقة الخارجية الصلبة)'],['spongy','العظم الإسفنجي (شبكة داخلية)'],['marrow','نخاع العظم (نسيج رخو)']],a:'compact',e:'العظم الكثيف طبقة خارجية صلبة تمنح العظمة المتانة.'},
+  {type:'match',q:'صل الجزء بوظيفته:',pairs:[['الغضروف','يغطي أطراف العظام ويقلل الاحتكاك'],['نخاع العظم','يساهم في تكوين خلايا الدم'],['الأوعية الدموية','تنقل الأكسجين والغذاء إلى خلايا العظم']],e:'كل جزء له دور مهم في عمل العظمة.'},
+  {type:'tf',q:'العظام نسيج حي ويمكنها النمو والالتئام.',opts:['صح','خطأ'],a:0,e:'صحيح؛ العظام أنسجة حية وتحتوي على خلايا وأوعية دموية.'},
+  {type:'mcq',q:'ما الجزء اللين الموجود داخل بعض العظام والمسؤول عن تكوين خلايا الدم؟',opts:['نخاع العظم','الغضروف','الجلد'],a:0,e:'نخاع العظم يساهم في إنتاج خلايا الدم.'}
+ ]},
+ {title:'رحلة الهياكل العظمية 🧍🐕🐦🐟',visual:'animals',qs:[
+  {type:'mcq',q:'أي جزء من الهيكل العظمي يحمي الدماغ؟',opts:['الجمجمة','القفص الصدري','الحوض'],a:0,e:'الجمجمة تحيط بالدماغ وتحميه.'},
+  {type:'match',q:'صل الكائن بطريقة حركته المناسبة:',pairs:[['الطائر 🐦','الطيران'],['السمكة 🐟','السباحة'],['الإنسان 🧍','المشي والركض']],e:'شكل الهيكل العظمي يساعد الكائن على الحركة بطريقة تناسب حياته.'},
+  {type:'mcq',q:'القفص الصدري يحمي بصورة رئيسية:',opts:['القلب والرئتين','الذراعين والساقين','الجلد'],a:0,e:'القفص الصدري يحيط بالقلب والرئتين ويحميهما.'},
+  {type:'pic',q:'أي كائن يمتلك أطرافًا أمامية تحورت إلى أجنحة للطيران؟',opts:['🐦 الطائر','🐕 الكلب'],a:0,e:'الأطراف الأمامية للطائر متحورة إلى أجنحة تساعده على الطيران.'},
+  {type:'mcq',q:'لماذا تختلف الهياكل العظمية من كائن لآخر؟',opts:['لتناسب طريقة الحركة والوظيفة','لأن كل الكائنات لها نفس الحركة','لأن العظام بلا وظيفة'],a:0,e:'تختلف الهياكل العظمية بما يناسب طريقة الحركة والعيش.'}
+ ]}
+];
+let studentName='',stage=0,qIndex=0,score=0,answered=false;
+const $=id=>document.getElementById(id);
+function startGame(){studentName=$('nameInput').value.trim();if(!studentName){$('nameError').classList.remove('hidden');return}$('nameError').classList.add('hidden');$('welcome').classList.add('hidden');$('game').classList.remove('hidden');$('stats').classList.remove('hidden');score=0;stage=0;qIndex=0;loadQ();}
+function updateUI(){const s=stages[stage];$('stageNum').textContent=stage+1;$('score').textContent=score;$('stageTitle').textContent=s.title;$('qCount').textContent=`السؤال ${qIndex+1} من 5`;$('stageBadge').textContent=`المرحلة ${['الأولى','الثانية','الثالثة'][stage]}`;$('progress').style.width=`${((stage*5+qIndex+1)/15)*100}%`;drawVisual(s.visual);}
+function loadQ(){answered=false;$('feedback').className='hidden';updateUI();const q=stages[stage].qs[qIndex];$('question').textContent=q.q;renderQ(q);}
+function renderQ(q){const area=$('questionArea');area.innerHTML='';if(q.type==='mcq'||q.type==='pic'||q.type==='tf'){const wrap=document.createElement('div');wrap.className='grid gap-3';q.opts.forEach((o,i)=>{const b=document.createElement('button');b.className='btn option bg-slate-800 hover:bg-slate-700 rounded-2xl p-4 text-right font-black text-lg';b.textContent=q.type==='tf'?(i===0?'✅ ':'❌ ')+o:o;b.onclick=()=>answer(i===q.a,b,q.e);wrap.appendChild(b)});area.appendChild(wrap)}
+else if(q.type==='match') renderMatch(q,area);
+else if(q.type==='parts'){const wrap=document.createElement('div');wrap.className='grid gap-3';q.parts.forEach(p=>{const b=document.createElement('button');b.className='btn part text-right font-bold text-lg';b.textContent='🔎 '+p[1];b.onclick=()=>answer(p[0]===q.a,b,q.e);wrap.appendChild(b)});area.appendChild(wrap)}}
+function renderMatch(q,area){let selected=null,matched=new Set();const info=document.createElement('div');info.className='text-sm font-bold text-cyan-200 mb-2';info.textContent='اضغط على العنصر ثم اضغط على وظيفته المناسبة.';area.appendChild(info);const items=document.createElement('div');items.className='grid sm:grid-cols-3 gap-2';q.pairs.forEach(p=>{const b=document.createElement('button');b.className='btn bg-amber-400 text-slate-950 rounded-2xl p-3 font-black';b.textContent=p[0];b.onclick=()=>{selected=p[0];document.querySelectorAll('.matchItem').forEach(x=>x.classList.remove('ring-4','ring-cyan-300'));b.classList.add('ring-4','ring-cyan-300')};b.classList.add('matchItem');items.appendChild(b)});area.appendChild(items);const targets=document.createElement('div');targets.className='grid gap-2 mt-4';q.pairs.slice().sort(()=>Math.random()-.5).forEach(p=>{const t=document.createElement('button');t.className='btn bg-slate-800 rounded-2xl p-3 text-right font-bold';t.textContent='🎯 '+p[1];t.onclick=()=>{if(!selected||matched.has(p[0]))return;if(selected===p[0]){matched.add(p[0]);t.classList.add('correct');t.textContent='✅ '+p[1];selected=null;document.querySelectorAll('.matchItem').forEach(x=>x.classList.remove('ring-4','ring-cyan-300'));if(matched.size===q.pairs.length)answer(true,null,q.e)}else{t.classList.add('wrong');setTimeout(()=>t.classList.remove('wrong'),400)}};targets.appendChild(t)});area.appendChild(targets);}
+function answer(ok,btn,ex){if(answered)return;if(btn){btn.classList.add(ok?'correct':'wrong')}if(ok){answered=true;score++;$('score').textContent=score;showFeedback(true,'ممتاز! 🌟 إجابة صحيحة',ex);if(window.confetti)confetti({particleCount:45,spread:70,origin:{y:.65}})}else showFeedback(false,'حاول مرة أخرى 💪',ex)}
+function showFeedback(ok,title,ex){const f=$('feedback');f.className=`mt-4 rounded-2xl p-3 border-2 ${ok?'bg-emerald-950 border-emerald-400':'bg-rose-950 border-rose-400'}`;f.innerHTML=`<div class="font-black text-lg">${ok?'🌟':'💡'} ${title}</div><div class="text-sm mt-1">${ex||''}</div>${ok?'<button class="btn bg-white text-slate-950 font-black px-4 py-2 rounded-xl mt-3" onclick="nextQ()">التالي ⬅️</button>':''}`;}
+function nextQ(){if(qIndex<4){qIndex++;loadQ()}else{if(stage<2){stage++;qIndex=0;celebrateStage()}else{finish()}}}
+function celebrateStage(){const f=$('feedback');f.className='mt-4 rounded-2xl p-4 border-2 border-amber-400 bg-indigo-950';f.innerHTML=`<div class="text-center"><div class="text-4xl">🏆🎉</div><div class="font-black text-xl text-amber-300">أحسنت يا ${studentName}!</div><p class="font-bold my-2">انتقلت إلى المرحلة التالية.</p><button class="btn bg-amber-400 text-slate-950 font-black px-5 py-2 rounded-xl" onclick="loadQ()">ابدأ المرحلة التالية 🚀</button></div>`;$('stageNum').textContent=stage+1}
+function finish(){ $('game').classList.add('hidden');$('stats').classList.add('hidden');$('final').classList.remove('hidden');$('finalTitle').textContent=`🎉 أحسنت يا ${studentName}!`;$('finalScore').textContent=score;$('thanks').textContent=`شكرًا يا ${studentName} على مشاركتك في تحدي كوكب العلوم 🌍🔬`;let msg=score>=13?'بطل العلوم 🌟':score>=10?'ممتاز، واصل التقدم 💪':score>=7?'جيد جدًا، راجع بعض النقاط 📚':'لا تقلق، حاول مرة أخرى ❤️';$('badge').textContent=msg;if(window.confetti)confetti({particleCount:120,spread:90,origin:{y:.55}})}
+function restartGame(){ $('final').classList.add('hidden');$('welcome').classList.remove('hidden');$('nameInput').value='';}
+function drawVisual(kind){const v=$('visual'),info=$('visualInfo');if(kind==='arm'){v.innerHTML=`<div class="absolute left-1/2 top-6 -translate-x-1/2 w-24 h-24 rounded-full bg-pink-200 border-4 border-pink-300"></div><div class="bone absolute left-1/2 top-28 -translate-x-1/2 w-10 h-24 rotate-6"></div><div class="joint absolute left-1/2 top-48 -translate-x-1/2"></div><div class="muscle absolute left-1/2 top-32 -translate-x-1/2 w-16 h-28 rotate-6 opacity-90"></div><div class="absolute bottom-3 left-3 right-3 text-center bg-slate-950/80 rounded-xl p-2 font-black text-amber-300">💪 جرّب معرفة ماذا يحدث عند ثني الذراع</div>`;info.textContent='العظام + العضلات + المفاصل تتعاون لإحداث الحركة.'}
+if(kind==='bone'){v.innerHTML=`<div class="absolute inset-0 flex items-center justify-center"><div class="relative w-28 h-44"><div class="bone absolute inset-y-10 left-1/2 -translate-x-1/2 w-16"></div><div class="w-24 h-24 rounded-full border-8 border-sky-300/90 bg-amber-300/20 absolute top-0 left-1/2 -translate-x-1/2"></div><div class="w-24 h-24 rounded-full border-8 border-sky-300/90 bg-amber-300/20 absolute bottom-0 left-1/2 -translate-x-1/2"></div><div class="absolute left-1/2 top-16 -translate-x-1/2 w-10 h-24 rounded-full bg-red-700/90"></div></div></div>`;info.textContent='استكشف: العظم الكثيف، العظم الإسفنجي، نخاع العظم، والغضروف.'}
+if(kind==='animals'){v.innerHTML=`<div class="h-full flex items-center justify-center gap-5 text-7xl"><div class="float">🧍</div><div class="float" style="animation-delay:.3s">🐕</div><div class="float" style="animation-delay:.6s">🐦</div><div class="float" style="animation-delay:.9s">🐟</div></div>`;info.textContent='تختلف هياكل الكائنات بما يناسب طريقة الحركة والعيش.'}}
+$('nameInput').addEventListener('keydown',e=>{if(e.key==='Enter')startGame()});
+</script>
+</body>
+</html>
